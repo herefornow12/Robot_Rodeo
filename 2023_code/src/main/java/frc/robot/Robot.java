@@ -1,21 +1,6 @@
-//TRY NOT TO CHANGE ANY OF THE CODE IT AS ALREADY GOOD IF YOU NEED TO CHANGE JUST CHANGE VALUES SUCH ROBOT SPEED LIMITER!!!!!!!!!!!
-
-/* 
-HOW TO PUSH THIS CODE TO THE BOT 
--------------------------------
-1. MAKE SURE THAT YOURE CONNECTED TO THE BOTS RADIO (wifi if ur in the room but at comps you have to connect via ethernet)
-2.FIND build.gradle ON THE FOLDER DROPDOWN ON THE LEFT
-3. RIGHT CLICK AND CLICK BUILD ROBOT CODE AND WAIT FOR IT TO FINISH
-4. RIGHT CLICK THE SAME FILE AND CLICK DEPLOY ROBOT CODE AND WAIT
-5. NOW CODE IS PUSHED SO GO TO DRIVER STATION AND BLOW UP BOT
-P.S MAKE SURE THE XBOX CONTROLLER IS PORT 0 AND JOYSTICK IS PORT 1 YOU CAN CHECK IN THE DRIVERSTATION!!!!
-
-*/
-
-
-//if marben is reading this code lets pray the bot isnt alr dead  JK JK.. or am i?????
 
 package frc.robot;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -26,11 +11,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.Joystick;
+//import edu.wpi.first.wpilibj.Joystick;
+
 import edu.wpi.first.wpilibj.SPI;
 
 public class Robot extends TimedRobot {
   private XboxController m_controller;
+  private XboxController m_controller2;
   private indexer index;
   private intake intaker;
   private launcher launch;
@@ -43,17 +30,17 @@ public class Robot extends TimedRobot {
    private DifferentialDrive m_drive;
    private Timer time;
    private climber climb;
-   private Joystick joy;
+   //private Joystick joy;
    private ADXRS450_Gyro gyro;
    @Override
   public void robotInit() {
-    joy = new Joystick(1);
+    //joy = new Joystick(1);
     intaker = new intake();
     launch = new launcher();
     index = new indexer();
     climb = new climber();
     m_controller = new XboxController(0);
-    //drivetrain
+    m_controller2 = new XboxController(1);
     m_leftLeader = new CANSparkMax(3, MotorType.kBrushed);
     m_leftFollower = new CANSparkMax(4,MotorType.kBrushed);
     m_rightLeader = new CANSparkMax(9, MotorType.kBrushed);
@@ -75,12 +62,12 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("anlge", gyro.getAngle());
     SmartDashboard.putNumber("Right X", m_controller.getRightX());
 
-    m_drive.arcadeDrive(-m_controller.getLeftY()*.75,m_controller.getRightX()*.5);
+    m_drive.arcadeDrive(-m_controller.getLeftY()*.70,m_controller.getRightY()*.5);
     intaker.setspeeds(0.0,0.0);
     index.setspeeds(0.0, 0.0);
     launch.setspeed(0.0);
     climb.setspeed(0.0);
-//this is autonomous shooting only use if you have two balls! if not just comment out everything under up to and including line 110
+    /*
     if(m_controller.getBButtonPressed()){
       launch.makeTrue();
     }
@@ -112,49 +99,57 @@ public class Robot extends TimedRobot {
        time.stop();
        time.reset();
      }
+     
+    }*/
+
+    
+    //2nd driver spins the launcher!!!!!
+  if(m_controller2.getAButton()){
+    launch.setspeed(.705);
     }
-    if(m_controller.getPOV()==0){
+    /*if(m_controller.getPOV()==0){
       time.stop();
       time.reset();
       launch.makefalse();
     }
-  if(m_controller.getAButton()){
-    launch.setspeed(.7);
+    */
+    if(m_controller.getPOV()==90){
+     gyro.reset();
     }
-    //this is for TESTING PURPOSES
-   // if(m_controller.getPOV()==90){
-   //  gyro.reset();
-   // }
-    if(m_controller.getRightBumper()){
+    //2nd driver indexes!!!
+    if(m_controller2.getRightBumper()){
       index.setspeeds(-.4,-.4);
     }
-    if(m_controller.getLeftBumper()){
+    if(m_controller2.getLeftBumper()){
       index.setspeeds(.4,.4);
     }
-    // greater than .05 because of drag on the trigger
+    //Main driver intakes!
     if(m_controller.getRightTriggerAxis()>.05){
      intaker.setspeeds(.2,.2);
     }
     if(m_controller.getLeftTriggerAxis()>.05){
       intaker.setspeeds(-.2,-.2);
     }
-    if(Math.abs(joy.getY())>0.05){
-      climb.setspeed(joy.getY());
+    //2nd driver climbs!
+    if(m_controller2.getXButton()){
+      climb.setspeed(1);
     }
+    if(m_controller2.getYButton()){
+      climb.setspeed(-1);
+    }
+    
   }
-  //keep gyro.reset() in auton init but only if youre testing you can bring it in auton periodic funcition so you dont have to restart bot every time 
-  //(keep in mind that it will take 10 years to load because gyro calibrates when you reset)
     @Override
     public void autonomousInit() {
-    gyro.reset();
+      gyro.reset();
      time.reset();
      time.start();
     }
 
   @Override
-//TWO BALL AUTON
-
   public void autonomousPeriodic() {
+
+
 SmartDashboard.putNumber("angle", gyro.getAngle());
 SmartDashboard.putNumber("timer", time.get());
 SmartDashboard.putNumber("angle", gyro.getAngle());
@@ -173,18 +168,17 @@ if(now >13.0){
 //else if(Math.abs(gyro.getAngle())<167){
   //m_drive.arcadeDrive(0, .6);
 //}
-else if(now>11.0){
+else if(now>12.0){
   m_drive.arcadeDrive(-.6,0);
 
 }
 else if(Math.abs(gyro.getAngle())<167){
  m_drive.arcadeDrive(0, .6);
- launch.setspeed(.7);
  }
  else if(now>8.0){
-  m_drive.arcadeDrive(.6,0.0);
+  m_drive.arcadeDrive(.75,0);
   launch.setspeed(.7);
- }
+}
 else if(now>7.75){
   launch.setspeed(.7);
   index.setspeeds(-.4, -.4);
@@ -195,6 +189,7 @@ else if(now>6.75){
 else if(now>5.75){
   launch.setspeed(.7);
   index.setspeeds(-.4, -.4);
+  intaker.setspeeds(.15, .15);
 }
 else if(now>5.25){
 
