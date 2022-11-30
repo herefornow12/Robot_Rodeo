@@ -67,6 +67,32 @@ public class Robot extends TimedRobot {
     index.setspeeds(0.0, 0.0);
     launch.setspeed(0.0);
     climb.setspeed(0.0);
+    
+    //Brian stuff he put here, for the 8th grade thing
+    if(m_controller.getBButtonPressed()){
+    doSpin();
+    }
+    if(m_controller.getAButton()){
+    rev(); 
+    }
+
+    public void doSpin()
+    {
+    for (int q = 0; q<50; q++)
+    {m_drive.arcadeDrive(-100,0);}
+    for (int p = 0; p<50; p++)
+    {m_drive.arcadeDrive(0,100);}
+    }
+    public void rev()
+    {
+    for (int p = 0; p<50; p++)
+    {intaker.setspeeds(.2,.2);} 
+    }
+    
+    
+    
+    
+    
     /*
     if(m_controller.getBButtonPressed()){
       launch.makeTrue();
